@@ -44,17 +44,16 @@ class ParseBudgetController extends Controller
                     ]
                 ]
             );
+
+            $data = Json::decode($res->getBody());
+            [$companies, $productsByCompany, $budget] = $this->companyBudgetSerializer->serialize($data);
+
+            $this->saveCompanyBudgetService->process($companies, $productsByCompany, $budget, $currentYear);
         } catch (GuzzleException $e) {
             echo $e->getMessage() . PHP_EOL;
             exit(1);
-        }
-
-        $data = Json::decode($res->getBody());
-        [$companies, $productsByCompany, $budget] = $this->companyBudgetSerializer->serialize($data);
-
-        try {
-            $this->saveCompanyBudgetService->process($companies, $productsByCompany, $budget, $currentYear);
         } catch (\Exception $e) {
+            echo 'Error code: ' . $e->getCode() . PHP_EOL;
             echo $e->getMessage() . PHP_EOL;
             exit(1);
         }
